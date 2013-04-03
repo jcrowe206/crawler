@@ -10,10 +10,14 @@ module.exports = function(url, callback, queueCallback) {
         if (err) {
             callback(err);
         } else {
-            if (resp.statusCode == 200) {
-                callbackHtml = $(resp.body).html();
-            } else {
-                err = "could not fetch site. Received response code: " + resp.statusCode;
+            try {
+                if (resp.statusCode == 200) {
+                    callbackHtml = $(resp.body).html();
+                } else {
+                    err = "could not fetch site. Received response code: " + resp.statusCode;
+                }
+            } catch (error) {
+                err = "caught an error on line 20 of crawl.js";
             }
 
             console.log(process.memoryUsage());

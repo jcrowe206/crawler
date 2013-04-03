@@ -2,7 +2,8 @@
 var async        = require('async'),
     $ = jquery   = require('jquery'),
     net          = require('net'),
-    request      = require('request');
+    request      = require('request'),
+    fs           = require('fs');
 
 // custom modules
 var crawl        = require(__dirname + '/app/classes/crawl.js'),
@@ -12,13 +13,13 @@ var crawl        = require(__dirname + '/app/classes/crawl.js'),
     urlHelper    = require(__dirname + '/app/helpers/url.js');
 
 // local variables
-var html         = null,
-    processed    = 0,
+//var html         = null,
+var processed    = 0,
     addedToQueue = 0,
-    hostname     = "www.dandb.com";
+    hostname     = "www.reddit.com";
 
 
-var url = 'http://www.dandb.com/';
+var url = 'http://www.reddit.com/';
 
 // make a request to the url param
 request(url, function(err, resp, body){
@@ -42,6 +43,7 @@ request(url, function(err, resp, body){
 
 // receive the callback from the crawl function
 var storeHtml = function (err, resp) {
+    processed++;
 
     if (err) {
         console.log(err);
@@ -55,19 +57,22 @@ var storeHtml = function (err, resp) {
         html.push(resp);
     }
 
+    fs.writeFile(__dirname + '/tmp/' + hostname + '-' + processed, resp);
+
     // if we have processed all of the jobs that were added to the queue
-    if (++processed == addedToQueue) {
+    if (processed == addedToQueue) {
+        console.log("DONE PROCESSING EVERYTHING");
         // save the html array in the page_html collection using the db connection
-        pageMapper.save({url : hostname, data : html }, db, 'raw_html', function(err, resp){
-            if (err) {
-                console.log(err);
-            }
-            console.log('saved page mapper data');
+//        pageMapper.save({url : hostname, data : html }, db, 'raw_html', function(err, resp){
+//            if (err) {
+//                console.log(err);
+//            }
+//            console.log('saved page mapper data');
             console.log(process.memoryUsage());
             // garbage collection
-            html = null;
-
-            console.log(process.memoryUsage());
-        })
+//            html = null;
+//
+//            console.log(process.memoryUsage());
+//        })
     }
 }
