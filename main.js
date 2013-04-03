@@ -7,14 +7,14 @@ var async        = require('async'),
 
 // custom modules
 var crawl        = require(__dirname + '/app/classes/crawl.js'),
-    db           = require(__dirname + '/app/helpers/db.js').connection(),
+//    db           = require(__dirname + '/app/helpers/db.js').connection(),
     pageMapper   = require(__dirname + '/app/models/pageMapper.js'),
     queue        = require(__dirname + '/app/classes/queue.js').queue,
     urlHelper    = require(__dirname + '/app/helpers/url.js');
 
 // local variables
-//var html         = null,
-var processed    = 0,
+var html         = [],
+    processed    = 0,
     addedToQueue = 0,
     hostname     = "www.reddit.com";
 
@@ -23,7 +23,7 @@ var url = 'http://www.reddit.com/';
 
 // make a request to the url param
 request(url, function(err, resp, body){
-    html = [];
+
     // add the html to the html array
     html.push($(resp.body).html());
 
@@ -43,8 +43,6 @@ request(url, function(err, resp, body){
 
 // receive the callback from the crawl function
 var storeHtml = function (err, resp) {
-    processed++;
-
     if (err) {
         console.log(err);
     }
@@ -57,17 +55,15 @@ var storeHtml = function (err, resp) {
         html.push(resp);
     }
 
-    fs.writeFile(__dirname + '/tmp/' + hostname + '-' + processed, resp);
-
     // if we have processed all of the jobs that were added to the queue
-    if (processed == addedToQueue) {
+    if (++processed == addedToQueue) {
         console.log("DONE PROCESSING EVERYTHING");
-        // save the html array in the page_html collection using the db connection
+//        save the html array in the page_html collection using the db connection
 //        pageMapper.save({url : hostname, data : html }, db, 'raw_html', function(err, resp){
 //            if (err) {
 //                console.log(err);
 //            }
-//            console.log('saved page mapper data');
+        fs.writeFile(__dirname + '/tmp/' + hostname + '-' + processed, html);
             console.log(process.memoryUsage());
             // garbage collection
 //            html = null;

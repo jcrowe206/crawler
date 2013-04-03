@@ -1,5 +1,5 @@
 var request    = require('request'),
-    $ = jquery = require('jquery');
+    $ = jQuery = require('jquery');
 
 module.exports = function(url, callback, queueCallback) {
     var callbackHtml = null;
